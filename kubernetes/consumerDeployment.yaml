@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+  labels:
+    app: consumer
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      containers:
+        - name: producer
+          image: rabbitmq-consumer:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000
+          env:
+            - name: RABBIT_MQ_CONNECTION_STRING
+              value: amqp://default_user_3ZCowrj7c_X9b9iJf-F:7lZhIO06ZesrPc1nVaiWSSqQgbWf1NO-@rabbitmq-mediator

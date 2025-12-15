@@ -1,5 +1,5 @@
 ### Dispatch Notification Message
-POST http://localhost:3000/notifications
+POST http://localhost:30001/notifications
 Content-Type: application/json
 
 {
@@ -7,7 +7,7 @@ Content-Type: application/json
 }
 
 ### Flush Notifications From Dead Letter Queue
-POST http://localhost:3000/notifications/flush-from-deadletter
+POST http://localhost:30001/notifications/flush-from-deadletter
 Content-Type: application/json
 
 {}
