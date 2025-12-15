@@ -1,5 +1,5 @@
 import amqp from "amqplib";
-import { withExponentialBackoff } from "./withExponentialBackoff.js";
+import {withExponentialBackoff} from "./withExponentialBackoff.js";
 
 const MAX_RETRIES = 3;
 const CHANCE_OF_FAILURE = 0.7; // 70% chance of failure to simulate processing errors
@@ -64,17 +64,18 @@ async function consumeMessages() {
         processMessage(channel, msg);
       }
     },
-    { noAck: false }
+    {noAck: false}
   );
 }
 
-function processMessage(channel: amqp.Channel, msg: amqp.ConsumeMessage) {
+async function processMessage(channel: amqp.Channel, msg: amqp.ConsumeMessage) {
   console.log("Processing message:", msg.content.toString());
 
   try {
     if (Math.random() <= CHANCE_OF_FAILURE) {
       throw new Error("Simulated processing error");
     }
+    await waitFor(1500);
     console.log("Done processing message:", msg.content.toString());
     channel.ack(msg);
   } catch {
@@ -91,7 +92,7 @@ function processMessage(channel: amqp.Channel, msg: amqp.ConsumeMessage) {
         "notifications_exchange",
         "notification.created",
         msg.content,
-        { headers, persistent: true }
+        {headers, persistent: true}
       );
 
       console.log(`Message requeued with retry count: ${retries + 1}`);
@@ -106,4 +107,8 @@ function processMessage(channel: amqp.Channel, msg: amqp.ConsumeMessage) {
     }
   } finally {
   }
+}
+
+function waitFor(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

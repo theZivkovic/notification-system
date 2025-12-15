@@ -1,5 +1,8 @@
 replicaCount: 3
 
+deployment:
+  name: rabbitmq-consumer-deployment
+
 image:
   repository: rabbitmq-consumer
   tag: latest

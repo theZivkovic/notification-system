@@ -1,0 +1,16 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: rabbitmq-consumer-scaler
+  namespace: default
+spec:
+  scaleTargetRef:
+    name: {{.Values.deployment.name}}
+  minReplicaCount: 0
+  maxReplicaCount: 20
+  triggers:
+    - type: rabbitmq-queue
+      metadata:
+        hostFromEnv: amqp://default_user_3ZCowrj7c_X9b9iJf-F:7lZhIO06ZesrPc1nVaiWSSqQgbWf1NO-@rabbitmq-mediator
+        queueName: notifications_queue
+        targetQueryValue: "1"
