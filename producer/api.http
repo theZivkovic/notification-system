@@ -1,3 +1,6 @@
+GET http://localhost:30001/health
+Content-Type: application/json
+
 ### Dispatch Notification Message
 POST http://localhost:30001/notifications
 Content-Type: application/json

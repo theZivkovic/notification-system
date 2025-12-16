@@ -20,6 +20,18 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: {{.Values.containerPort }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{.Values.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{.Values.containerPort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10  
           env:
             - name: RABBIT_MQ_CONNECTION_STRING
               value: {{ .Values.env.RABBIT_MQ_CONNECTION_STRING }}
