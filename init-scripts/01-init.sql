@@ -1,0 +1,9 @@
+CREATE TABLE blue_book_entries(
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(50) NOT NULL,
+    body VARCHAR(255) NOT NULL,
+    from_name VARCHAR(50) NOT NULL,
+    to_name VARCHAR(50) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -16,7 +16,7 @@ app.listen(PORT, () => {
 
 app.get("/processed-messages", async (req: Request, res: Response) => {
   try {
-    const processedMessages = consumerService.getProcessedMessages();
+    const processedMessages = await consumerService.getProcessedMessages();
     res.status(200).json(processedMessages);
   } catch (error) {
     console.error("Error fetching processed messages:", error);

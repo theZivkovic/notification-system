@@ -1,14 +1,14 @@
 import amqp from "amqplib";
 import {withExponentialBackoff} from "./withExponentialBackoff.js";
+import {BlueBookEntryStatus} from "./blueBookEntry.js";
+const {blueBookEntryRepository} = await import("./blueBookEntryRepository.js");
 
 const MAX_RETRIES = 3;
 const CHANCE_OF_FAILURE = 0.7; // 70% chance of failure to simulate processing errors
 
 export class ConsumerService {
-  private processedMessages: string[] = [];
-
-  getProcessedMessages(): string[] {
-    return this.processedMessages;
+  getProcessedMessages() {
+    return blueBookEntryRepository.getAll();
   }
 
   async consumeMessages() {
@@ -87,7 +87,13 @@ export class ConsumerService {
       }
       await this.waitFor(1500);
       console.log("Done processing message:", msg.content.toString());
-      this.processedMessages.push(msg.content.toString());
+      await blueBookEntryRepository.create({
+        title: "Processed Entry",
+        body: msg.content.toString(),
+        from_name: "System",
+        to_name: "User",
+        status: BlueBookEntryStatus.COMPLETED,
+      });
       channel.ack(msg);
     } catch {
       console.error("Error processing message: ", msg.content.toString());

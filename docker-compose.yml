@@ -9,6 +9,11 @@ services:
     environment:
       - RABBIT_MQ_CONNECTION_STRING=amqp://rabbitmq:5672
       - PORT=3000
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_PORT=5432
     ports:
       - "3000:3000"
     volumes:
@@ -26,6 +31,12 @@ services:
       - ottos-stand-service
     environment:
       - RABBIT_MQ_CONNECTION_STRING=amqp://rabbitmq:5672
+      - PORT=3000
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydatabase
+      - POSTGRES_HOST=postgres_db
+      - POSTGRES_PORT=5432
     ports:
       - "3001:3000"
     volumes:
@@ -41,6 +52,20 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq/
+  postgres_db:
+    image: postgres:16
+    container_name: postgres_container
+    restart: always
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
 
 volumes:
   rabbitmq_data:
+  postgres_data:
