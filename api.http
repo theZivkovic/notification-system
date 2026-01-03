@@ -3,7 +3,10 @@ POST http://localhost:3000/notifications
 Content-Type: application/json
 
 {
-  "message": "Heey there!!!"
+  "title": "Heey there",
+  "body": "This is a notification message.",
+  "from_name": "Joana",
+  "to_name": "Agatha"
 }
 
 ### Flush Notifications From Dead Letter Queue

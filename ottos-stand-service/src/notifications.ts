@@ -1,6 +1,6 @@
 import amqp from "amqplib";
 
-export async function dispatchNotification(notificationMessage: string) {
+export async function dispatchNotification(notificationObj: any) {
   let connection: amqp.ChannelModel | null = null;
   let channel: amqp.ConfirmChannel | null = null;
 
@@ -36,13 +36,13 @@ export async function dispatchNotification(notificationMessage: string) {
     channel.publish(
       "notifications_exchange",
       "notification.created",
-      Buffer.from(notificationMessage),
-      { persistent: true }
+      Buffer.from(JSON.stringify(notificationObj)),
+      {persistent: true}
     );
 
     await channel.waitForConfirms();
 
-    console.log(`Message sent to exchange: ${notificationMessage}`);
+    console.log(`Message sent to exchange: ${JSON.stringify(notificationObj)}`);
   } finally {
     await channel?.close();
     await connection?.close();

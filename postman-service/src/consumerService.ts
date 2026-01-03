@@ -1,10 +1,9 @@
 import amqp from "amqplib";
 import {withExponentialBackoff} from "./withExponentialBackoff.js";
-import {BlueBookEntryStatus} from "./blueBookEntry.js";
+import {BlueBookEntryStatus, type BlueBookEntry} from "./blueBookEntry.js";
 const {blueBookEntryRepository} = await import("./blueBookEntryRepository.js");
 
 const MAX_RETRIES = 3;
-const CHANCE_OF_FAILURE = 0.7; // 70% chance of failure to simulate processing errors
 
 export class ConsumerService {
   getProcessedMessages() {
@@ -80,21 +79,17 @@ export class ConsumerService {
     msg: amqp.ConsumeMessage
   ) {
     console.log("Processing message:", msg.content.toString());
-
+    const message = JSON.parse(msg.content.toString()) as BlueBookEntry;
     try {
-      if (Math.random() <= CHANCE_OF_FAILURE) {
-        throw new Error("Simulated processing error");
-      }
-      await this.waitFor(1500);
-      console.log("Done processing message:", msg.content.toString());
       await blueBookEntryRepository.create({
-        title: "Processed Entry",
-        body: msg.content.toString(),
-        from_name: "System",
-        to_name: "User",
+        title: message.title,
+        body: message.body,
+        from_name: message.from_name,
+        to_name: message.to_name,
         status: BlueBookEntryStatus.COMPLETED,
       });
       channel.ack(msg);
+      console.log("Done processing message:", msg.content.toString());
     } catch {
       console.error("Error processing message: ", msg.content.toString());
       const retries = msg.properties.headers?.["x-retries"] || 0;
@@ -113,7 +108,6 @@ export class ConsumerService {
         );
 
         console.log(`Message requeued with retry count: ${retries + 1}`);
-
         channel.ack(msg);
         return;
       } else {
