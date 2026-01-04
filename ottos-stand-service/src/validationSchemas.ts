@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-const createNotificationSchema = Joi.object({
+const createBlueBookEntrySchema = Joi.object({
   title: Joi.string()
     .regex(/^\w+[\w\s]+$/)
     .min(1)
@@ -11,4 +11,4 @@ const createNotificationSchema = Joi.object({
   to_name: Joi.string().alphanum().min(1).max(30).required(),
 });
 
-export {createNotificationSchema};
+export {createBlueBookEntrySchema};

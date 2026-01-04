@@ -1,7 +1,7 @@
 import type {NextFunction, Request, Response} from "express";
 import type Joi from "joi";
 
-export async function validationMiddleware(schema: Joi.ObjectSchema) {
+export async function buildValidationMiddleware(schema: Joi.ObjectSchema) {
   return async function (req: Request, res: Response, next: NextFunction) {
     try {
       await schema.validateAsync(req.body, {abortEarly: false});
