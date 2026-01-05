@@ -78,16 +78,13 @@ export class ConsumerService {
         BlueBookEntryStatus.TAKEN_BY_POSTMAN
       );
       await this.waitFor(10000);
-      await blueBookEntryRepository.updateStatus(
-        message.id,
-        BlueBookEntryStatus.DELIVERED
-      );
+      await blueBookEntryRepository.setDelivered(message.id);
       channel.ack(msg);
       console.log("Done processing message:", msg.content.toString());
     } catch {
       console.error("Error processing message: ", msg.content.toString());
       const retries = msg.properties.headers?.["x-retries"] || 0;
-
+      await blueBookEntryRepository.setBlocked(message.id);
       if (retries < MAX_RETRIES) {
         const headers = {
           ...msg.properties.headers,

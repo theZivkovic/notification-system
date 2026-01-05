@@ -13,7 +13,7 @@ class BlueBookEntryRepository {
     return queryResult.rows;
   }
 
-  async updateStatuses(ids: number[], status: BlueBookEntry["status"]) {
+  async updateStatuses(ids: number[], status: BlueBookEntryStatus) {
     if (ids.length === 0) {
       return;
     }

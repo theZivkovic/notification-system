@@ -13,4 +13,8 @@ export type BlueBookEntry = {
   from_name: string;
   to_name: string;
   status: BlueBookEntryStatus;
+  retry_count: number;
+  delivering_by?: string;
+  created_at: Date;
+  updated_at: Date;
 };
