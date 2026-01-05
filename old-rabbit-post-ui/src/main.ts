@@ -1,7 +1,7 @@
 import {Application, HTMLText} from "pixi.js";
 import {Button} from "@pixi/ui";
 import {createBlueBookEntry, getAllBlueBookEntries} from "./apiClient";
-import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
+import {BlueBookEntryStatus} from "./blueBookEntry";
 
 function formatCharacterText(iconEmoji: string, name: string, count: number) {
   return count === 0
@@ -11,7 +11,6 @@ function formatCharacterText(iconEmoji: string, name: string, count: number) {
 
 (async () => {
   const app = new Application();
-  let blueBookEntries: Array<BlueBookEntry> = [];
   await app.init({background: "#1099bb", resizeTo: window});
 
   document.getElementById("pixi-container")!.appendChild(app.canvas);
@@ -20,11 +19,7 @@ function formatCharacterText(iconEmoji: string, name: string, count: number) {
 
   // add otto's stand
   const ottosStand = new HTMLText({
-    text: formatCharacterText(
-      "👦",
-      "Otto",
-      blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW).length
-    ),
+    text: formatCharacterText("👦", "Otto", 0),
     style: {
       fontFamily: "Arial",
       fontSize: 24,
@@ -101,7 +96,7 @@ function formatCharacterText(iconEmoji: string, name: string, count: number) {
   });
 
   async function refreshBlueBookEntries() {
-    blueBookEntries = await getAllBlueBookEntries();
+    const blueBookEntries = await getAllBlueBookEntries();
     ottosStand.text = formatCharacterText(
       "👦",
       "Otto",
