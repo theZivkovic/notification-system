@@ -3,6 +3,12 @@ import {Button} from "@pixi/ui";
 import {createBlueBookEntry, getAllBlueBookEntries} from "./apiClient";
 import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
 
+function formatCharacterText(iconEmoji: string, name: string, count: number) {
+  return count === 0
+    ? `<b>${iconEmoji} ${name}</b><br/><small>idle</small>`
+    : `<b>${iconEmoji} ${name}</b><br/><small>delivering: ${count} x ✉️</small>`;
+}
+
 (async () => {
   const app = new Application();
   let blueBookEntries: Array<BlueBookEntry> = [];
@@ -10,16 +16,20 @@ import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
 
   document.getElementById("pixi-container")!.appendChild(app.canvas);
 
-  //✉️
+  //
 
   // add otto's stand
   const ottosStand = new HTMLText({
-    text: `👦 ${blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW).length}`,
+    text: formatCharacterText(
+      "👦",
+      "Otto",
+      blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW).length
+    ),
     style: {
       fontFamily: "Arial",
-      fontSize: 72,
-      fill: "#ff1010",
-      align: "center",
+      fontSize: 24,
+      fill: "white",
+      align: "left",
     },
   });
   ottosStand.position.set(app.screen.width / 4, app.screen.height / 2);
@@ -27,12 +37,12 @@ import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
 
   // add carlo's stand
   const carlosPost = new HTMLText({
-    text: "🧙",
+    text: formatCharacterText("🧙", "Carlo", 0),
     style: {
       fontFamily: "Arial",
-      fontSize: 72,
-      fill: "#ff1010",
-      align: "center",
+      fontSize: 24,
+      fill: "white",
+      align: "left",
     },
   });
   carlosPost.position.set(app.screen.width / 2, app.screen.height / 2);
@@ -44,12 +54,12 @@ import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
   const postmanNames = ["Pete", "Paula", "Penny", "Patty", "Prat"];
   for (let i = 0; i < postmanNames.length; i++) {
     const postman = new HTMLText({
-      text: `👮🏻 ${postmanNames[i]}`,
+      text: formatCharacterText("👮🏻", postmanNames[i], 0),
       style: {
         fontFamily: "Arial",
-        fontSize: 48,
+        fontSize: 24,
         fill: "white",
-        align: "center",
+        align: "left",
       },
     });
     postman.position.set(
@@ -76,16 +86,29 @@ import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
     if (appTimer > 1000) {
       appTimer -= 1000;
       blueBookEntries = await getAllBlueBookEntries();
-      ottosStand.text = `👦 ${blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW).length}`;
-      carlosPost.text = `🧙 ${blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.TAKEN_BY_CARLO).length}`;
+      ottosStand.text = formatCharacterText(
+        "👦",
+        "Otto",
+        blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW)
+          .length
+      );
+      carlosPost.text = formatCharacterText(
+        "🧙",
+        "Carlo",
+        blueBookEntries.filter(
+          (x) => x.status === BlueBookEntryStatus.TAKEN_BY_CARLO
+        ).length
+      );
       postmans.forEach((postman, index) => {
-        postman.text = `👮🏻 ${postmanNames[index]}: ${
+        postman.text = formatCharacterText(
+          "👮🏻",
+          postmanNames[index],
           blueBookEntries.filter(
             (x) =>
               x.status === BlueBookEntryStatus.TAKEN_BY_POSTMAN &&
               x.delivering_by === postmanNames[index]
           ).length
-        }`;
+        );
       });
     }
   });
