@@ -1,4 +1,4 @@
-import {Application, Graphics, HTMLText} from "pixi.js";
+import {Application, HTMLText} from "pixi.js";
 import {Button} from "@pixi/ui";
 import {createBlueBookEntry, getAllBlueBookEntries} from "./apiClient";
 import {BlueBookEntry, BlueBookEntryStatus} from "./blueBookEntry";
@@ -71,8 +71,18 @@ function formatCharacterText(iconEmoji: string, name: string, count: number) {
     app.stage.addChild(postman);
   }
 
-  const button = new Button(new Graphics().rect(0, 0, 100, 50).fill(0xffffff));
+  const buttonHtml = new HTMLText({
+    text: "Send ✉️",
+    style: {
+      fontFamily: "Arial",
+      fontSize: 24,
+      fill: "white",
+      align: "left",
+    },
+  });
+  buttonHtml.position.set(100, app.screen.height / 2.0);
 
+  const button = new Button(buttonHtml);
   button.onPress.connect(async () => {
     await createBlueBookEntry();
     await refreshBlueBookEntries();
