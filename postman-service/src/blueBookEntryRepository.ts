@@ -8,10 +8,27 @@ class BlueBookEntryRepository {
   async setDelivered(id: number) {
     const queryResult: QueryResult<BlueBookEntry> = await pool.query(
       `UPDATE ${BlueBookEntryTable}
-        SET status = '${BlueBookEntryStatus.DELIVERED}'
+        SET status = $2
         WHERE id = $1 
         RETURNING *`,
-      [id]
+      [id, BlueBookEntryStatus.DELIVERED]
+    );
+    return queryResult.rows[0];
+  }
+
+  async setTakenByPostman(id: number) {
+    const queryResult: QueryResult<BlueBookEntry> = await pool.query(
+      `UPDATE ${BlueBookEntryTable}
+        SET 
+          status = $2,
+          delivering_by = $3
+        WHERE id = $1
+        RETURNING *`,
+      [
+        id,
+        BlueBookEntryStatus.TAKEN_BY_POSTMAN,
+        process.env.POSTMAN_NAME ?? "N/A",
+      ]
     );
     return queryResult.rows[0];
   }
@@ -20,22 +37,11 @@ class BlueBookEntryRepository {
     const queryResult: QueryResult<BlueBookEntry> = await pool.query(
       `UPDATE ${BlueBookEntryTable}
         SET 
-          status = 'BLOCKED',
+          status = $2,
           retry_count = retry_count + 1
         WHERE id = $1
         RETURNING *`,
-      [id]
-    );
-    return queryResult.rows[0];
-  }
-
-  async updateStatus(id: number, status: BlueBookEntryStatus) {
-    const queryResult: QueryResult<BlueBookEntry> = await pool.query(
-      `UPDATE ${BlueBookEntryTable}
-        SET status = $1
-        WHERE id = $2 
-        RETURNING *`,
-      [status, id]
+      [id, BlueBookEntryStatus.BLOCKED]
     );
     return queryResult.rows[0];
   }

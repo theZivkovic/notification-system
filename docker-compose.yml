@@ -66,8 +66,9 @@ services:
       - rabbitmq
       - ottos-stand-service
     environment:
-      - RABBIT_MQ_CONNECTION_STRING=amqp://rabbitmq:5672
       - PORT=3000
+      - POSTMAN_NAME=Postman Pete
+      - RABBIT_MQ_CONNECTION_STRING=amqp://rabbitmq:5672
       - POSTGRES_USER=myuser
       - POSTGRES_PASSWORD=mypassword
       - POSTGRES_DB=mydatabase

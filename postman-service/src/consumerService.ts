@@ -73,10 +73,7 @@ export class ConsumerService {
     console.log("Processing message:", msg.content.toString());
     const message = JSON.parse(msg.content.toString()) as BlueBookEntry;
     try {
-      await blueBookEntryRepository.updateStatus(
-        message.id,
-        BlueBookEntryStatus.TAKEN_BY_POSTMAN
-      );
+      await blueBookEntryRepository.setTakenByPostman(message.id);
       await this.waitFor(10000);
       await blueBookEntryRepository.setDelivered(message.id);
       channel.ack(msg);
