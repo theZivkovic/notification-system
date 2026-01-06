@@ -3,58 +3,19 @@ import {Button} from "@pixi/ui";
 import {createBlueBookEntry, getAllBlueBookEntries} from "./apiClient";
 import {BlueBookEntryStatus} from "./blueBookEntry";
 import {debounce} from "./debounce";
-
-function formatCharacterText(iconEmoji: string, name: string, count: number) {
-  return count === 0
-    ? `<b>${iconEmoji} ${name}</b><br/><small>idle</small>`
-    : `<b>${iconEmoji} ${name}</b><br/><small>delivering: ${count} x ✉️</small>`;
-}
-
-function createOttosStand(app: Application): HTMLText {
-  const ottosStand = new HTMLText({
-    text: formatCharacterText("👦", "Otto", 0),
-    style: {
-      fontFamily: "Arial",
-      fontSize: 24,
-      fill: "white",
-      align: "left",
-    },
-  });
-  ottosStand.position.set(app.screen.width / 4, app.screen.height / 2);
-  return ottosStand;
-}
-
-function createCarlosPost(app: Application): HTMLText {
-  const carlosPost = new HTMLText({
-    text: formatCharacterText("🧙", "Carlo", 0),
-    style: {
-      fontFamily: "Arial",
-      fontSize: 24,
-      fill: "white",
-      align: "left",
-    },
-  });
-  carlosPost.position.set(app.screen.width / 2, app.screen.height / 2);
-  return carlosPost;
-}
+import {Character} from "./Character";
 
 function createPostmans(
   app: Application,
   postmanNames: Array<string>
-): Array<HTMLText> {
-  const postmans: Array<HTMLText> = [];
+): Array<Character> {
+  const postmans: Array<Character> = [];
   const postmanPadding = 100;
   for (let i = 0; i < postmanNames.length; i++) {
-    const postman = new HTMLText({
-      text: formatCharacterText("👮🏻", postmanNames[i], 0),
-      style: {
-        fontFamily: "Arial",
-        fontSize: 24,
-        fill: "white",
-        align: "left",
-      },
-    });
-    postman.position.set(
+    const postman = new Character(
+      app,
+      postmanNames[i],
+      "👮🏻",
       (3 * app.screen.width) / 4.0,
       postmanPadding +
         (app.screen.height - 2 * postmanPadding) * ((i + 1) / 6.0)
@@ -88,26 +49,36 @@ function createSendButton(
   const app = new Application();
   await app.init({background: "#1099bb", resizeTo: window});
 
-  const debouncedPress = debounce(async () => {
-    await createBlueBookEntry();
-    await refreshBlueBookEntries();
-  }, 200);
-
   document.getElementById("pixi-container")!.appendChild(app.canvas);
 
+  // create characters
   const postmanNames = ["Pete", "Paula", "Penny", "Patty", "Prat"];
 
-  const ottosStand = createOttosStand(app);
-  const carlosPost = createCarlosPost(app);
+  const ottosStand = new Character(
+    app,
+    "Otto",
+    "👦",
+    app.screen.width / 4,
+    app.screen.height / 2
+  );
+  const carlosPost = new Character(
+    app,
+    "Carlo",
+    "🧙 ",
+    app.screen.width / 2,
+    app.screen.height / 2
+  );
   const postmans = createPostmans(app, postmanNames);
 
+  // creare send button with debounced press handler
+  const debouncedPress = debounce(async () => {
+    await createBlueBookEntry();
+    await refreshCharactersBasedOnUpdatedBlueBook();
+  }, 200);
   const sendButton = createSendButton(app, debouncedPress);
-
-  app.stage.addChild(ottosStand);
-  app.stage.addChild(carlosPost);
-  postmans.forEach((postman) => app.stage.addChild(postman));
   app.stage.addChild(sendButton.view!);
 
+  // setup periodic refresh
   let appTimer = 0;
 
   const ONE_SECOND_MS = 1000;
@@ -115,28 +86,22 @@ function createSendButton(
     appTimer += time.deltaMS;
     if (appTimer > ONE_SECOND_MS) {
       appTimer -= ONE_SECOND_MS;
-      await refreshBlueBookEntries();
+      await refreshCharactersBasedOnUpdatedBlueBook();
     }
   });
 
-  async function refreshBlueBookEntries() {
+  async function refreshCharactersBasedOnUpdatedBlueBook() {
     const blueBookEntries = await getAllBlueBookEntries();
-    ottosStand.text = formatCharacterText(
-      "👦",
-      "Otto",
+    ottosStand.updateDeliveryCount(
       blueBookEntries.filter((x) => x.status === BlueBookEntryStatus.NEW).length
     );
-    carlosPost.text = formatCharacterText(
-      "🧙",
-      "Carlo",
+    carlosPost.updateDeliveryCount(
       blueBookEntries.filter(
         (x) => x.status === BlueBookEntryStatus.TAKEN_BY_CARLO
       ).length
     );
     postmans.forEach((postman, index) => {
-      postman.text = formatCharacterText(
-        "👮🏻",
-        postmanNames[index],
+      postman.updateDeliveryCount(
         blueBookEntries.filter(
           (x) =>
             x.status === BlueBookEntryStatus.TAKEN_BY_POSTMAN &&
